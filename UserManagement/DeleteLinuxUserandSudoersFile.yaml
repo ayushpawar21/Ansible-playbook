@@ -1,0 +1,31 @@
+- name: Delete Linux User and Sudoers File
+  hosts: cluster-1
+  gather_facts: no 
+  become: yes  # To execute tasks with administrative privileges
+  vars:
+    username: infraadmin  # Change this to the desired username
+
+  tasks:
+    - name: Check if the user exists
+      ansible.builtin.shell:
+        cmd: "id -u {{ username }}"
+      register: existing_user
+      ignore_errors: true
+
+    - name: Remove the user from the sudoers file
+      ansible.builtin.lineinfile:
+        path: "/etc/sudoers"
+        state: absent
+        regexp: "^{{ username }}\\s"
+      when: existing_user.rc == 0  # Remove from sudoers only if the user exists
+
+    - name: Delete the user if present
+      ansible.builtin.user:
+        name: "{{ username }}"
+        state: absent
+      when: existing_user.rc == 0  # Delete the user only if it exists
+
+    - name: Print a message
+      ansible.builtin.debug:
+        msg: "User {{ username }} deleted. No action taken if the user did not exist."
+      when: existing_user.rc != 0  # Print a message if the user didn't exist

@@ -7,7 +7,7 @@
   tasks:
     - name: Copy Bash Script to Remote Server
       copy:
-        src: /mnt/c/Users/ayush/OneDrive/Desktop/Ansible_playbook/hello.sh
+        src: /mnt/c/Users/ayush/OneDrive/Desktop/Ansible_playbook/hello.sh  #Give the asulte Path like your base machince
         dest: /tmp/hello.sh
         mode: 0755  # Adjust the permission according to your needs
 
