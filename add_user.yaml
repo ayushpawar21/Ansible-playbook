@@ -1,0 +1,27 @@
+---
+- name: Create Linux User if Not Exist
+  hosts: cluster-1
+  gather_facts: no 
+  become: yes  # To execute tasks with administrative privileges
+  vars:
+    username: neelam  # Change this to the desired username
+    password: aayush  # Change this to the desired password (encrypted using 'mkpasswd' or a similar tool)
+
+  tasks:
+    - name: Check if the user exists
+      ansible.builtin.shell:
+        cmd: "id -u {{ username }}"
+      register: existing_user
+      ignore_errors: true
+
+    - name: Create the user if not present
+      ansible.builtin.user:
+        name: "{{ username }}"
+        password: "{{ password | password_hash('sha512') }}"
+        state: present
+      when: existing_user.rc != 0  # Create the user only if it doesn't exist
+
+    - name: Print a message
+      ansible.builtin.debug:
+        msg: "User {{ username }} already exists. No action taken."
+      when: existing_user.rc == 0  # Print a message if the user already exists

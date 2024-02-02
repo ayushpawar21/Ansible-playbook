@@ -1,0 +1,22 @@
+---
+- name: Copy and Run Bash Script
+  hosts: cluster-1
+  become: yes # To run tasks with sudo
+  gather_facts: no  
+
+  tasks:
+    - name: Copy Bash Script to Remote Server
+      copy:
+        src: /mnt/c/Users/ayush/OneDrive/Desktop/Ansible_playbook/hello.sh
+        dest: /tmp/hello.sh
+        mode: 0755  # Adjust the permission according to your needs
+
+    - name: Run Bash Script on Remote Server
+      shell: "/tmp/hello.sh"
+      register: script_output
+      ignore_errors: true  # Continue with the playbook even if the script fails
+
+    - name: Display Script Output
+      debug:
+        var: script_output.stdout_lines
+      when: script_output is succeeded  # Display output only if the script ran successfully
